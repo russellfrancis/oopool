@@ -82,7 +82,7 @@
                     encoding="UTF-8">
                 <classpath>
                     <cp/>
-                    <path refid="lib.testtime.classpath"/>
+                    <path refid="lib.@{component.name}.testtime.classpath"/>
                     <pathelement location="${build.dir}/@{component.name}"/>
                 </classpath>
             </javac>
@@ -158,7 +158,7 @@
                 <jvmarg value="-Dnet.sourceforge.cobertura.datafile=${build.dir}/@{component.name}-cobertura.ser"/>
                 <classpath>
                     <component-classpath/>
-                    <path refid="lib.testtime.classpath"/>                    
+                    <path refid="lib.@{component.name}.testtime.classpath"/>
                     <pathelement path="${build.dir}/@{component.name}-cobertura"/>
                     <pathelement path="${build.dir}/@{component.name}-unittests"/>
                 </classpath>
