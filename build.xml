@@ -77,9 +77,34 @@
     <!-- =========================================================================================================== -->
     <!--  TESTING TARGETS                                                                                            -->
     <!-- =========================================================================================================== -->
-    
     <!-- =========================================================================================================== -->
-    <!--  COMPILATION TARGETS                                                                          -->
+    <target name="test-all" depends="test-main"/>
+
+    <!-- =========================================================================================================== -->
+    <target name="test-main" depends="test-main-findbugs, test-main-unittests"/>
+
+    <!-- =========================================================================================================== -->
+    <target name="test-main-findbugs" depends="compile, install-findbugs">
+        <property name="findbugs.report.output" value="html"/>
+        <generic-run-findbugs component.name="main" report.output="${findbugs.report.output}">
+            <component-classpath>
+                <path refid="lib.main.testtime.classpath"/>
+                <path refid="lib.main.runtime.classpath"/>
+            </component-classpath>
+        </generic-run-findbugs>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <target name="test-main-unittests" depends="compile-main">
+        <generic-run-unittests component.name="main">
+            <component-classpath>
+                <path refid="lib.main.runtime.classpath"/>
+            </component-classpath>
+        </generic-run-unittests>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <!--  COMPILATION TARGETS                                                                                        -->
     <!-- =========================================================================================================== -->
     
     <!-- =========================================================================================================== -->
