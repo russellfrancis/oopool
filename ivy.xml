@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+    <info organisation="laureninnovations" module="oopool">
+        <ivyauthor name="Russell Francis" url="mailto:russell.francis@metro-six.com"/>
+        <description>
+            This module contains the Open Office pooling server.  This server manages a pool of open office instances
+            starting them up as needed and restarting/shutting them down as necessary and delegating requests to
+            different backend instances to improve the throughput and resiliancy of document processing using
+            open office.
+        </description>
+    </info>
+    <configurations defaultconfmapping="main-runtime->*;main-buildtime->*;main-testtime->*;main-deploytime->*">
+        <conf name="main-runtime"/>
+        <conf name="main-buildtime"/>
+        <conf name="main-testtime"/>
+        <conf name="main-deploytime"/>
+    </configurations>
+    <!-- We don't have publications setup yet. <publications></publications> -->
+    <dependencies>
+        <!-- These are the dependencies needed for runtime -->
+        <dependency conf="main-runtime" org="slf4j" name="slf4j-log4j12" rev="1.7.1"/>
+        <dependency conf="main-runtime" org="libreoffice" name="libreoffice-java" rev="3.6.2.2"/>
+
+        <!-- These are the dependencies needed for buildtime -->
+        <dependency conf="main-buildtime" org="one-jar" name="one-jar-ant-task" rev="0.97"/>
+
+        <!-- These are the libraries needed for testing. -->
+        <dependency conf="main-testtime" org="junit" name="junit" rev="4.10"/>
+        <dependency conf="main-testtime" org="easymock" name="easymock" rev="3.1"/>
+        <dependency conf="main-testtime" org="findbugs" name="findbugs" rev="2.0.1"/>
+        <dependency conf="main-testtime" org="cobertura" name="cobertura" rev="1.9.4.1"/>
+    </dependencies>
+
+</ivy-module>

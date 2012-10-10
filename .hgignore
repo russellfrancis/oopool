@@ -1,0 +1,8 @@
+.iml
+.idea
+build.properties
+src/generated/java
+lib/
+dist/
+build/
+stage/
