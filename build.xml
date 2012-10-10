@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="oopool" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+    <import file="build.common.xml"/>
+    <property file="build.properties"/>
+    
+    <property name="project.name" value="oopool"/>
+    <property name="project.version" value="dev"/>
+
+    <property name="ivy.settings.dir" value="settings"/>
+    <property name="ivy.settings.file" value="ivysettings.xml"/>
+    <property name="ivy.version" value="2.3.0-rc1"/>
+    <property name="ivy.source.domainname" value="ivy.laureninnovations.com"/>
+    
+    <property name="compile.debug" value="true"/>
+    <property name="compile.deprecation" value="false"/>
+    <property name="compile.optimize" value="false"/>
+    <property name="compile.target" value="6"/>
+    <property name="compile.source" value="6"/>
+    
+    <property name="base.dir" value="."/>
+    <property name="build.dir" value="build"/>
+    <property name="build.main.dir" value="${build.dir}/main"/>
+    <property name="build.main.cobertura.dir" value="${build.main.dir}/cobertura"/>
+   
+    <property name="stage.dir" value="stage"/>
+    
+    <property name="src.dir" value="src"/>
+    <property name="src.main.dir" value="${src.dir}/main"/>
+    <property name="src.main.resources.dir" value="${src.main.dir}/resources"/>
+    
+    <property name="dist.dir" value="dist"/>
+
+    <property name="docs.dir" value="${dist.dir}/docs"/>
+    <property name="docs.api.dir" value="${dist.dir}/docs/api"/>
+    
+    <!-- The directory where 3rd party libraries are stored. -->
+    <property name="lib.dir" value="lib"/>
+    <property name="lib.main.dir" value="${lib.dir}/main"/>
+
+    <!-- The directory where test-time libraries are stored. -->
+    <property name="lib.main.testtime.dir" value="${lib.main.dir}/testtime"/>
+
+    <!-- The directory where build-time libraries are stored. -->
+    <property name="lib.main.buildtime.dir" value="${lib.main.dir}/buildtime"/>
+
+    <!-- The directory where build-time libraries are stored. -->
+    <property name="lib.main.runtime.dir" value="${lib.main.dir}/runtime"/>
+
+    <path id="lib.main.buildtime.classpath">
+        <fileset dir="${lib.main.buildtime.dir}" includes="*.jar"/>
+    </path>
+    <path id="lib.main.runtime.classpath">
+        <fileset dir="${lib.main.runtime.dir}" includes="*.jar"/>
+    </path>
+    <path id="lib.main.testtime.classpath">
+        <fileset dir="${lib.main.testtime.dir}" includes="*.jar"/>
+    </path>
+
+    <!-- =========================================================================================================== -->
+    <!--  MAINTENANCE TARGETS                                                                                        -->
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <target name="clean" unless="clean.no">
+        <parallel>
+            <delete dir="${build.dir}" failonerror="false" includeemptydirs="true"/>
+            <delete dir="${stage.dir}" failonerror="false" includeemptydirs="true"/>
+            <delete dir="${dist.dir}" failonerror="false" includeemptydirs="true"/>
+            <delete failonerror="false" includeemptydirs="true">
+                <fileset dir="${lib.dir}">
+                    <exclude name="ivy/ivy-${ivy.version}.jar"/>
+                </fileset>
+            </delete>
+        </parallel>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <!--  TESTING TARGETS                                                                                            -->
+    <!-- =========================================================================================================== -->
+    
+    <!-- =========================================================================================================== -->
+    <!--  COMPILATION TARGETS                                                                          -->
+    <!-- =========================================================================================================== -->
+    
+    <!-- =========================================================================================================== -->
+    <target name="compile" depends="compile-main"/>
+    
+    <!-- =========================================================================================================== -->
+    <target name="compile-main" depends="resolve-all, install-cobertura" unless="compiled.main">
+        <generic-compile component.name="main">
+            <component-classpath>
+                <path refid="lib.main.buildtime.classpath"/>
+                <path refid="lib.main.runtime.classpath"/>
+            </component-classpath>
+        </generic-compile>
+    </target>
+    
+    <!-- =========================================================================================================== -->
+    <!--  STAGING TARGETS                                                                                          -->
+    <!-- =========================================================================================================== -->    
+    <!-- =========================================================================================================== -->
+    <target name="stage" depends="stage-main"/>
+    
+    <!-- =========================================================================================================== -->
+    <target name="stage-main" depends="compile-main">
+        <mkdir dir="${stage.dir}"/>
+        <mkdir dir="${stage.dir}/main"/>
+        <copy todir="${stage.dir}/main">
+            <fileset dir="${build.main.dir}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <!--  PACKAGING TARGETS                                                                                          -->
+    <!-- =========================================================================================================== -->
+    <!-- =========================================================================================================== -->
+    <target name="dist" depends="dist-main"/>
+
+    <!-- =========================================================================================================== -->
+    <target name="dist-main" depends="stage-main, install-onejar">
+        <mkdir dir="${dist.dir}"/>
+        <one-jar destfile="${dist.dir}/${project.name}-${project.version}.jar">
+            <manifest>
+                <attribute name="One-Jar-Main-Class" value="com.laureninnovations.oopool.Main"/>
+            </manifest>
+            <main>
+                <fileset dir="${stage.dir}/main"/>
+            </main>
+            <lib>
+                <fileset dir="${lib.main.runtime.dir}" includes="*.jar"/>
+            </lib>
+        </one-jar>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <!--  DEPENDENCY RESOLUTION TARGETS                                                                              -->
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <target name="resolve-all" depends="resolve-main-runtime,resolve-main-buildtime,resolve-main-testtime,resolve-main-deploytime"/>
+
+    <!-- =========================================================================================================== -->
+    <target name="resolve-main-runtime" depends="ivy-settings" unless="main-runtime.resolved">
+        <generic-resolve component.name="main" component.conf="runtime"/>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <target name="resolve-main-buildtime" depends="ivy-settings" unless="main-buildtime.resolved">
+        <generic-resolve component.name="main" component.conf="buildtime"/>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <target name="resolve-main-testtime" depends="ivy-settings" unless="main-testtime.resolved">
+        <generic-resolve component.name="main" component.conf="testtime"/>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <target name="resolve-main-deploytime" depends="ivy-settings" unless="main-deploytime.resolved">
+        <generic-resolve component.name="main" component.conf="deploytime"/>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <target name="ivy-settings" depends="install-ivy" unless="resolve.no">
+        <fail unless="ivy.settings.dir"/>
+        <ivy:settings file="${ivy.settings.dir}/${ivy.settings.file}"/>
+    </target>
+
+</project>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Common Build Routines" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <import file="build.install.xml"/>
+
+    <!-- =========================================================================================================== -->
+    <macrodef name="generic-resolve">
+        <attribute name="component.name"/>
+        <attribute name="component.conf"/>
+        <sequential>
+            <mkdir dir="${lib.dir}"/>
+            <mkdir dir="${lib.dir}/@{component.name}"/>
+            <mkdir dir="${lib.dir}/@{component.name}/@{component.conf}"/>
+            <ivy:retrieve pattern="${lib.dir}/@{component.name}/@{component.conf}/[artifact]-[revision].[ext]" conf="@{component.name}-@{component.conf}"/>
+            <property name="@{component.name}-@{component.conf}.resolved" value="true"/>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================================== -->
+    <macrodef name="generic-compile">
+        <attribute name="component.name"/>
+        <element name="component-classpath"/>
+        <sequential>
+            <mkdir dir="${build.dir}"/>
+            <mkdir dir="${build.dir}/@{component.name}"/>
+            <mkdir dir="${build.dir}/@{component.name}-unittests"/>
+
+            <!-- compile the source -->
+            <javac  srcdir="${src.dir}/@{component.name}/java"
+                    destdir="${build.dir}/@{component.name}"
+                    debug="${compile.debug}"
+                    deprecation="${compile.deprecation}"
+                    target="${compile.target}"
+                    source="${compile.source}"
+                    encoding="UTF-8">
+                <classpath>
+                    <component-classpath/>
+                </classpath>
+            </javac>
+
+            <!-- copy all of the static resources into the build directory. -->
+            <copy todir="${build.dir}/@{component.name}">
+                <fileset dir="${src.dir}/@{component.name}/java">
+                    <include name="**/*"/>
+                    <exclude name="**/*.java"/>
+                    <exclude name="**/.svn"/>
+                </fileset>
+                <fileset dir="${src.dir}/@{component.name}/resources">
+                    <include name="**/*"/>
+                    <exclude name="**/*.java"/>
+                    <exclude name="**/.svn"/>
+                </fileset>
+            </copy>
+
+            <parallel>
+                <!-- instrument our classes -->
+                <generic-instrument component.name="@{component.name}"/>
+
+                <!-- compile our unittests as well -->
+                <generic-compile-unittests component.name="@{component.name}">
+                    <cp><component-classpath/></cp>
+                </generic-compile-unittests>
+            </parallel>
+
+            <!-- mark this component as having been compiled. -->
+            <property name="compiled.${component.name}" value="true"/>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================================== -->
+    <macrodef name="generic-compile-unittests">
+        <attribute name="component.name"/>
+        <element name="cp"/>
+        <sequential>
+            <!-- compile our unittests as well -->
+            <javac  srcdir="${src.dir}/@{component.name}/unittests/java"
+                    destdir="${build.dir}/@{component.name}-unittests"
+                    debug="${compile.debug}"
+                    deprecation="${compile.deprecation}"
+                    target="${compile.target}"
+                    source="${compile.source}"
+                    encoding="UTF-8">
+                <classpath>
+                    <cp/>
+                    <path refid="lib.testtime.classpath"/>
+                    <pathelement location="${build.dir}/@{component.name}"/>
+                </classpath>
+            </javac>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================================== -->
+    <macrodef name="generic-instrument">
+        <attribute name="component.name"/>
+        <sequential>
+            <mkdir dir="${build.dir}"/>
+            <mkdir dir="${build.dir}/@{component.name}-cobertura"/>
+
+            <!-- Instrument the compiled classes for this component -->
+            <cobertura-instrument todir="${build.dir}/@{component.name}-cobertura" datafile="${build.dir}/@{component.name}-cobertura.ser">
+                <includeClasses regex=".*"/>
+                <instrumentationClasspath>
+                    <pathelement path="${build.dir}/@{component.name}"/>
+                </instrumentationClasspath>
+            </cobertura-instrument>
+
+            <!-- The instrument task doesn't copy interfaces :( -->
+            <copy todir="${build.dir}/@{component.name}-cobertura">
+                <fileset dir="${build.dir}/@{component.name}">
+                    <include name="**/*"/>
+                </fileset>
+            </copy>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================================== -->
+    <macrodef name="generic-run-findbugs">
+        <attribute name="component.name"/>
+        <attribute name="report.output" default="html"/>
+        <element name="component-classpath"/>
+        <sequential>
+            <mkdir dir="${dist.dir}"/>
+            <mkdir dir="${dist.dir}/reports"/>
+            <mkdir dir="${dist.dir}/reports/@{component.name}"/>
+            <mkdir dir="${dist.dir}/reports/@{component.name}/findbugs-@{report.output}"/>
+            <findbugs   home="${build.dir}/findbugs"
+                        output="@{report.output}"
+                        outputFile="${dist.dir}/reports/@{component.name}/findbugs-@{report.output}/findbugs.@{report.output}"
+                        effort="max"
+                        jvmargs="-Xmx512m">
+                <auxClasspath>
+                    <component-classpath/>
+                </auxClasspath>
+                <sourcePath path="${src.dir}/@{component.name}/java"/>
+                <class location="${build.dir}/@{component.name}"/>
+            </findbugs>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================================== -->
+    <macrodef name="generic-run-unittests">
+        <attribute name="component.name"/>
+        <attribute name="test.filepattern" default="*"/>
+        <element name="component-classpath"/>
+        <sequential>
+            <mkdir dir="${dist.dir}"/>
+            <mkdir dir="${dist.dir}/reports"/>
+            <mkdir dir="${dist.dir}/reports/@{component.name}"/>
+            <mkdir dir="${dist.dir}/reports/@{component.name}/junit-xml"/>
+            <mkdir dir="${dist.dir}/reports/@{component.name}/junit-html"/>
+            <mkdir dir="${dist.dir}/reports/@{component.name}/cobertura-xml"/>
+            <mkdir dir="${dist.dir}/reports/@{component.name}/cobertura-html"/>
+            <junit fork="true"
+                   forkmode="once"
+                   printsummary="on"
+                   haltonfailure="false"
+                   failureproperty="test.failed">
+                <jvmarg value="-Dnet.sourceforge.cobertura.datafile=${build.dir}/@{component.name}-cobertura.ser"/>
+                <classpath>
+                    <component-classpath/>
+                    <path refid="lib.testtime.classpath"/>                    
+                    <pathelement path="${build.dir}/@{component.name}-cobertura"/>
+                    <pathelement path="${build.dir}/@{component.name}-unittests"/>
+                </classpath>
+                <formatter type="brief" usefile="false"/>
+                <formatter type="xml"/>
+                <batchtest todir="${dist.dir}/reports/@{component.name}/junit-xml">
+                    <fileset dir="${build.dir}/@{component.name}-unittests">
+                        <include name="**/@{test.filepattern}Test.class"/>
+                    </fileset>
+                </batchtest>
+            </junit>
+            <junitreport todir="${dist.dir}/reports/@{component.name}/junit-html">
+                <fileset dir="${dist.dir}/reports/@{component.name}/junit-xml">
+                    <include name="TEST*.xml"/>
+                </fileset>
+                <report format="frames" todir="${dist.dir}/reports/@{component.name}/junit-html"/>
+            </junitreport>
+            <cobertura-report format="xml" destdir="${dist.dir}/reports/@{component.name}/cobertura-xml" datafile="${build.dir}/@{component.name}-cobertura.ser">
+                <fileset dir="${src.dir}/@{component.name}/java">
+                    <include name="**/*.java"/>
+                </fileset>
+            </cobertura-report>
+            <cobertura-report format="html" destdir="${dist.dir}/reports/@{component.name}/cobertura-html" datafile="${build.dir}/@{component.name}-cobertura.ser">
+                <fileset dir="${src.dir}/@{component.name}/java">
+                    <include name="**/*.java"/>
+                </fileset>
+            </cobertura-report>
+        </sequential>
+    </macrodef>
+
+    <!-- =========================================================================================================== -->
+    <macrodef name="generic-javadoc">
+        <attribute name="component.name"/>
+        <attribute name="packagenames"/>
+        <attribute name="author" default="true"/>
+        <attribute name="version" default="true"/>
+        <element name="component-classpath"/>
+        <sequential>
+            <mkdir dir="${dist.dir}"/>
+            <mkdir dir="${dist.dir}/docs"/>
+            <mkdir dir="${dist.dir}/docs/@{component.name}"/>
+            <mkdir dir="${dist.dir}/docs/@{component.name}/api"/>
+            <javadoc    destdir="${dist.dir}/docs/@{component.name}/api"
+                        author="@{author}"
+                        version="@{version}"
+                        packagenames="@{packagenames}"
+                        sourcepath="${src.dir}/@{component.name}/java">
+                <classpath>
+                    <component-classpath/>
+                </classpath>
+            </javadoc>
+        </sequential>
+    </macrodef>
+
+</project>
