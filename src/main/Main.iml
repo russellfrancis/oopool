@@ -13,6 +13,8 @@
     <orderEntry type="library" exported="" name="log4j-1.7.1" level="project" />
     <orderEntry type="library" name="testlibs" level="project" />
     <orderEntry type="library" name="libreoffice-java-3.6.2.2" level="project" />
+    <orderEntry type="library" name="org.springframework.beans-3.1.2.RELEASE" level="project" />
+    <orderEntry type="library" name="gson-2.2.2" level="project" />
   </component>
 </module>
 

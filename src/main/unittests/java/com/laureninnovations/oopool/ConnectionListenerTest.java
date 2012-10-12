@@ -6,7 +6,7 @@ import org.junit.Test;
 public class ConnectionListenerTest {
     @Test
     public void testStarted() {
-        ConnectionListener listener = new ConnectionListener();
+        ConnectionListener listener = new ConnectionListener("");
         listener.started();
         Assert.assertTrue(true);
     }
