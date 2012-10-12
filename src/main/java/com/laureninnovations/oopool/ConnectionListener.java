@@ -10,33 +10,40 @@ public class ConnectionListener extends ComponentBase implements XStreamListener
 
     static private final Logger log = LoggerFactory.getLogger(ConnectionListener.class);
 
+
+    private String id;
+
+    public ConnectionListener(String id) {
+        this.id = id;
+    }
+
     public void started() {
         if (log.isDebugEnabled()) {
-            log.debug("connection started");
+            log.debug("connection started " + id);
         }
     }
 
     public void closed() {
         if (log.isDebugEnabled()) {
-            log.debug("connection closed");
+            log.debug("connection closed " + id);
         }
     }
 
     public void terminated() {
         if (log.isDebugEnabled()) {
-            log.debug("connection terminated");
+            log.debug("connection terminated " + id);
         }
     }
 
     public void error(Object o) {
         if (log.isDebugEnabled()) {
-            log.debug("connection error");
+            log.debug("connection error:  " + id + ": " + o);
         }
     }
 
     public void disposing(EventObject source) {
         if (log.isDebugEnabled()) {
-            log.debug("connection disposing");
+            log.debug("connection disposing " + id);
         }
     }
 }

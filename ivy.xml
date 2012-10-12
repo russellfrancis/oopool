@@ -9,17 +9,25 @@
             open office.
         </description>
     </info>
-    <configurations defaultconfmapping="main-runtime->*;main-buildtime->*;main-testtime->*;main-deploytime->*">
+    <configurations defaultconfmapping="main-runtime->*;main-buildtime->*;main-testtime->*;main-deploytime->*;libreoffice-linux-x64->*;">
         <conf name="main-runtime"/>
         <conf name="main-buildtime"/>
         <conf name="main-testtime"/>
         <conf name="main-deploytime"/>
+        <conf name="libreoffice-linux-x64"/>
     </configurations>
     <!-- We don't have publications setup yet. <publications></publications> -->
     <dependencies>
         <!-- These are the dependencies needed for runtime -->
         <dependency conf="main-runtime" org="slf4j" name="slf4j-log4j12" rev="1.7.1"/>
         <dependency conf="main-runtime" org="libreoffice" name="libreoffice-java" rev="3.6.2.2"/>
+        <dependency conf="main-runtime" org="spring" name="spring-core" rev="3.1.2.RELEASE"/>
+        <dependency conf="main-runtime" org="spring" name="spring-beans" rev="3.1.2.RELEASE"/>
+        <dependency conf="main-runtime" org="spring" name="spring-context" rev="3.1.2.RELEASE"/>
+        <dependency conf="main-runtime" org="spring" name="spring-context-support" rev="3.1.2.RELEASE"/>
+        <dependency conf="main-runtime" org="spring" name="spring-expression" rev="3.1.2.RELEASE"/>
+        <dependency conf="main-runtime" org="spring" name="spring-asm" rev="3.1.2.RELEASE"/>
+        <dependency conf="main-runtime" org="google" name="gson" rev="2.2.2"/>
 
         <!-- These are the dependencies needed for buildtime -->
         <dependency conf="main-buildtime" org="one-jar" name="one-jar-ant-task" rev="0.97"/>
@@ -29,6 +37,9 @@
         <dependency conf="main-testtime" org="easymock" name="easymock" rev="3.1"/>
         <dependency conf="main-testtime" org="findbugs" name="findbugs" rev="2.0.1"/>
         <dependency conf="main-testtime" org="cobertura" name="cobertura" rev="1.9.4.1"/>
+
+        <!-- These are the dependencies for setting up a clustered libreoffice -->
+        <dependency conf="libreoffice-linux-x64" org="libreoffice" name="libreoffice-linux-x64" rev="3.6.2.2"/>
     </dependencies>
 
 </ivy-module>

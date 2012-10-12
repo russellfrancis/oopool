@@ -6,6 +6,9 @@
     <property name="project.name" value="oopool"/>
     <property name="project.version" value="dev"/>
 
+    <property name="tar.cmd" value="tar"/>
+    <property name="cp.cmd" value="cp"/>
+
     <property name="ivy.settings.dir" value="settings"/>
     <property name="ivy.settings.file" value="ivysettings.xml"/>
     <property name="ivy.version" value="2.3.0-rc1"/>
@@ -29,6 +32,13 @@
     <property name="src.main.resources.dir" value="${src.main.dir}/resources"/>
     
     <property name="dist.dir" value="dist"/>
+
+    <property name="deploy.dir" location="deploy"/><!-- MUST BE ABSOLUTE -->
+
+    <property name="libreoffice.target" value="linux-x64"/><!-- linux-x86, win-x64, win-x86, osx-x64 none of these are supported right now. -->
+    <property name="libreoffice.tar.dir" value="libreoffice3.6"/><!-- This is the directory within the .tar.bz2 file which should be stripped from the files. -->
+    <property name="libreoffice.deploy.dir" value="${deploy.dir}/libreoffice"/><!-- MUST BE ABSOLUTE -->
+    <property name="libreoffice.instances.dir" value="${deploy.dir}/instances"/><!-- MUST BE ABSOLUTE -->
 
     <property name="docs.dir" value="${dist.dir}/docs"/>
     <property name="docs.api.dir" value="${dist.dir}/docs/api"/>
@@ -56,6 +66,11 @@
         <fileset dir="${lib.main.testtime.dir}" includes="*.jar"/>
     </path>
 
+    <filterset id="substitution.filterset">
+        <filter token="LIBREOFFICE_BASE_DIR" value="${libreoffice.deploy.dir}"/>
+        <filter token="LIBREOFFICE_INSTANCE_DIR" value="${libreoffice.instances.dir}"/>
+    </filterset>
+
     <!-- =========================================================================================================== -->
     <!--  MAINTENANCE TARGETS                                                                                        -->
     <!-- =========================================================================================================== -->
@@ -72,6 +87,10 @@
                 </fileset>
             </delete>
         </parallel>
+    </target>
+
+    <target name="clean-libreoffice" unless="clean.no">
+        <delete dir="${deploy.dir}" failonerror="false" includeemptydirs="true"/>
     </target>
 
     <!-- =========================================================================================================== -->
@@ -133,7 +152,16 @@
         <copy todir="${stage.dir}/main">
             <fileset dir="${build.main.dir}">
                 <include name="**/*"/>
+                <exclude name="**/*.properties"/>
+                <exclude name="**/*.xml"/>
             </fileset>
+        </copy>
+        <copy todir="${stage.dir}/main">
+            <fileset dir="${build.main.dir}">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+            </fileset>
+            <filterset refid="substitution.filterset"/>
         </copy>
     </target>
 
@@ -149,6 +177,7 @@
         <one-jar destfile="${dist.dir}/${project.name}-${project.version}.jar">
             <manifest>
                 <attribute name="One-Jar-Main-Class" value="com.laureninnovations.oopool.Main"/>
+                <attribute name="Class-Path" value="${libreoffice.deploy.dir}/uri-link/lib"/>
             </manifest>
             <main>
                 <fileset dir="${stage.dir}/main"/>
@@ -157,6 +186,44 @@
                 <fileset dir="${lib.main.runtime.dir}" includes="*.jar"/>
             </lib>
         </one-jar>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <target name="run" depends="dist">
+        <java fork="true" dir="${dist.dir}" jar="${dist.dir}/${project.name}-${project.version}.jar">
+            <!--<arg value="-Xdebug"/>
+            <arg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>-->
+        </java>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <!--  INSTALL CLUSTERED LIBRE OFFICE                                                                             -->
+    <!-- =========================================================================================================== -->
+    <!-- =========================================================================================================== -->
+    <target name="deploy-libreoffice" depends="resolve-all,unpack-libreoffice">
+        <mkdir dir="${libreoffice.instances.dir}"/>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <target name="unpack-libreoffice" depends="resolve-libreoffice">
+        <mkdir dir="${build.dir}/libreoffice"/>
+        <bunzip2 dest="${build.dir}/libreoffice/libreoffice.tar">
+            <fileset dir="${lib.dir}/libreoffice/${libreoffice.target}">
+                <include name="*.bz2"/>
+            </fileset>
+        </bunzip2>
+        <!-- We use the native commands to preserve file permissions in particular executability and sym-links. -->
+        <exec executable="${tar.cmd}" dir="${build.dir}/libreoffice">
+            <arg value="xvf"/>
+            <arg value="libreoffice.tar"/>
+        </exec>
+        <delete file="${build.dir}/libreoffice/libreoffice.tar"/>
+        <mkdir dir="${libreoffice.deploy.dir}"/>
+        <exec executable="${cp.cmd}" dir="${build.dir}/libreoffice/${libreoffice.tar.dir}/">
+            <arg value="-r"/>
+            <arg value="./"/>
+            <arg value="${libreoffice.deploy.dir}"/>
+        </exec>
     </target>
 
     <!-- =========================================================================================================== -->
@@ -184,6 +251,11 @@
     <!-- =========================================================================================================== -->
     <target name="resolve-main-deploytime" depends="ivy-settings" unless="main-deploytime.resolved">
         <generic-resolve component.name="main" component.conf="deploytime"/>
+    </target>
+
+    <!-- =========================================================================================================== -->
+    <target name="resolve-libreoffice" depends="ivy-settings" unless="libreoffice.resolved">
+        <generic-resolve component.name="libreoffice" component.conf="${libreoffice.target}"/>
     </target>
 
     <!-- =========================================================================================================== -->

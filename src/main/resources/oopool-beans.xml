@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <context:annotation-config/>
+
+    <!-- Global utilities -->
+    <bean id="applicationContext" class="com.laureninnovations.util.SpringApplicationContext"/>
+    <bean id="ioUtil" class="com.laureninnovations.util.IOUtil"/>
+    <bean id="gson" class="com.google.gson.Gson"/>
+
+    <!-- Application specific configuration -->
+    <bean id="main" class="com.laureninnovations.oopool.Main"/>
+    <bean id="configuration" class="com.laureninnovations.oopool.config.PropertiesConfiguration" init-method="init" destroy-method="destroy"/>
+    <bean id="officePool" class="com.laureninnovations.oopool.office.pool.OfficePool" init-method="init" destroy-method="destroy"/>
+    <bean id="ooRequestListenerThread" class="com.laureninnovations.oopool.RequestListenerThread"/>
+
+    <!-- Administive Server -->
+    <bean id="adminServer" class="com.laureninnovations.oopool.admin.AdminServer"/>
+    <bean id="adminController" class="com.laureninnovations.oopool.admin.AdminController" init-method="init"/>
+    <bean id="adminRequestHandler" class="com.laureninnovations.oopool.admin.AdminRequestHandler" scope="prototype"/>
+    <bean id="adminControlProtocol" class="com.laureninnovations.oopool.admin.protocol.AdminControlProtocol" scope="prototype"/>
+
+    <!-- Office Server -->
+    <bean id="officeServer" class="com.laureninnovations.oopool.office.OfficeServer"/>
+    <bean id="officeController" class="com.laureninnovations.oopool.office.OfficeController" init-method="init"/>
+    <bean id="officeRequestHandler" class="com.laureninnovations.oopool.office.OfficeRequestHandler" scope="prototype" init-method="init" destroy-method="destroy"/>
+
+</beans>
