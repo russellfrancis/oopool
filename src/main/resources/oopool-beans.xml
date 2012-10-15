@@ -11,15 +11,51 @@
     <context:annotation-config/>
 
     <!-- Global utilities -->
-    <bean id="applicationContext" class="com.laureninnovations.util.SpringApplicationContext"/>
     <bean id="ioUtil" class="com.laureninnovations.util.IOUtil"/>
     <bean id="gson" class="com.google.gson.Gson"/>
+
+    <!-- Open Office Beans -->
+    <bean id="ooContext" class="com.sun.star.comp.helper.Bootstrap" factory-method="createInitialComponentContext">
+        <constructor-arg index="0"><null/></constructor-arg>
+    </bean>
+
+    <bean id="ooManager" factory-bean="ooContext" factory-method="getServiceManager"/>
+
+    <bean id="ooAcceptorStub" factory-bean="ooManager" factory-method="createInstanceWithContext">
+        <constructor-arg index="0" value="com.sun.star.connection.Acceptor"/>
+        <constructor-arg index="1" ref="ooContext"/>
+    </bean>
+
+    <bean id="ooBridgeFactoryStub" factory-bean="ooManager" factory-method="createInstanceWithContext">
+        <constructor-arg index="0" value="com.sun.star.bridge.BridgeFactory"/>
+        <constructor-arg index="1" ref="ooContext"/>
+    </bean>
+
+    <bean id="ooConnectorStub" factory-bean="ooManager" factory-method="createInstanceWithContext" scope="prototype">
+        <constructor-arg index="0" value="com.sun.star.connection.Connector"/>
+        <constructor-arg index="1" ref="ooContext"/>
+    </bean>
+
+    <bean id="ooAcceptor" class="com.sun.star.uno.UnoRuntime" factory-method="queryInterface">
+        <constructor-arg index="0" type="java.lang.Class" value="com.sun.star.connection.XAcceptor"/>
+        <constructor-arg index="1" ref="ooAcceptorStub"/>
+    </bean>
+
+    <bean id="ooBridgeFactory" class="com.sun.star.uno.UnoRuntime" factory-method="queryInterface">
+        <constructor-arg index="0" type="java.lang.Class" value="com.sun.star.bridge.XBridgeFactory"/>
+        <constructor-arg index="1" ref="ooBridgeFactoryStub"/>
+    </bean>
+
+    <bean id="ooConnector" class="com.sun.star.uno.UnoRuntime" factory-method="queryInterface" scope="prototype">
+        <constructor-arg index="0" type="java.lang.Class" value="com.sun.star.connection.XConnector"/>
+        <constructor-arg index="1" ref="ooConnectorStub"/>
+    </bean>
 
     <!-- Application specific configuration -->
     <bean id="main" class="com.laureninnovations.oopool.Main"/>
     <bean id="configuration" class="com.laureninnovations.oopool.config.PropertiesConfiguration" init-method="init" destroy-method="destroy"/>
-    <bean id="officePool" class="com.laureninnovations.oopool.office.pool.OfficePool" init-method="init" destroy-method="destroy"/>
-    <bean id="ooRequestListenerThread" class="com.laureninnovations.oopool.RequestListenerThread"/>
+    <bean id="officePool" class="com.laureninnovations.oopool.office.pool.OfficePool" init-method="init" destroy-method="antiInit"/>
+    <bean id="officeInstance" class="com.laureninnovations.oopool.office.pool.OfficeInstance" scope="prototype"/>
 
     <!-- Administive Server -->
     <bean id="adminServer" class="com.laureninnovations.oopool.admin.AdminServer"/>
