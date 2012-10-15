@@ -1,21 +1,18 @@
 package com.laureninnovations.oopool.office;
 
 import com.laureninnovations.oopool.config.Configuration;
-import com.sun.star.bridge.XBridgeFactory;
-import com.sun.star.comp.helper.Bootstrap;
+import com.laureninnovations.oopool.office.pool.OfficePool;
 import com.sun.star.connection.ConnectionSetupException;
 import com.sun.star.connection.XAcceptor;
 import com.sun.star.connection.XConnection;
-import com.sun.star.lang.XMultiComponentFactory;
-import com.sun.star.uno.UnoRuntime;
-import com.sun.star.uno.XComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OfficeController extends Thread {
@@ -23,14 +20,6 @@ public class OfficeController extends Thread {
 
     private AtomicBoolean initialized = new AtomicBoolean(false);
     private AtomicBoolean shutdown = new AtomicBoolean(false);
-    private int minThreadPoolSize = 1;
-    private long keepAliveTime = 60;
-    private int queueCapacity = 1000;
-
-    private XComponentContext ooContext;
-    private XMultiComponentFactory ooManager;
-    private XAcceptor ooAcceptor;
-    private XBridgeFactory ooBridgeFactory;
 
     private ExecutorService executorService;
 
@@ -40,18 +29,18 @@ public class OfficeController extends Thread {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private XAcceptor ooAcceptor;
+
+    @Autowired
+    private OfficePool officePool;
+
     public void init() throws Exception {
         if (!initialize()) {
             throw new IllegalStateException("The init method may only be called once.");
         }
         setExecutorService(newExecutorService());
-
-        ooContext = Bootstrap.createInitialComponentContext(null);
-        ooManager = ooContext.getServiceManager();
-        ooAcceptor = UnoRuntime.queryInterface(XAcceptor.class,
-                ooManager.createInstanceWithContext("com.sun.star.connection.Acceptor", ooContext));
-        ooBridgeFactory = UnoRuntime.queryInterface(XBridgeFactory.class,
-                ooManager.createInstanceWithContext("com.sun.star.bridge.BridgeFactory", ooContext));
+        officePool.start();
     }
 
     public boolean isInitialized() {
@@ -62,7 +51,7 @@ public class OfficeController extends Thread {
         return !initialized.getAndSet(true);
     }
 
-    public void shutdown() throws IOException {
+    public void shutdown() throws IOException, InterruptedException {
         if (!markShutdown()) {
             throw new IllegalStateException("The shutdown method may only be called once.");
         }
@@ -73,6 +62,7 @@ public class OfficeController extends Thread {
             }
             ooAcceptor.stopAccepting();
             getExecutorService().shutdown();
+            officePool.shutdown();
         } finally {
             if (log.isInfoEnabled()) {
                 log.info("OFFICE SERVER SHUTDOWN COMPLETE");
@@ -115,22 +105,11 @@ public class OfficeController extends Thread {
     }
 
     protected ExecutorService newExecutorService() {
-        return new ThreadPoolExecutor(
-                getMinThreadPoolSize(),
-                getConfiguration().getMaxPoolSize(),
-                getKeepAliveTime(),
-                TimeUnit.SECONDS,
-                newBlockingQueue(getQueueCapacity())
-        );
-    }
-
-    protected BlockingQueue<Runnable> newBlockingQueue(int capacity) {
-        return new ArrayBlockingQueue<Runnable>(capacity);
+        return Executors.newFixedThreadPool(getConfiguration().getMaxPoolSize());
     }
 
     protected OfficeRequestHandler newOfficeRequestHandler(XConnection connection) {
         OfficeRequestHandler handler = applicationContext.getBean(OfficeRequestHandler.class);
-        handler.setOfficeController(this);
         handler.setConnection(connection);
         return handler;
     }
@@ -153,29 +132,5 @@ public class OfficeController extends Thread {
 
     protected void setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
-    }
-
-    public int getMinThreadPoolSize() {
-        return minThreadPoolSize;
-    }
-
-    public void setMinThreadPoolSize(int minThreadPoolSize) {
-        this.minThreadPoolSize = minThreadPoolSize;
-    }
-
-    public long getKeepAliveTime() {
-        return keepAliveTime;
-    }
-
-    public void setKeepAliveTime(long keepAliveTime) {
-        this.keepAliveTime = keepAliveTime;
-    }
-
-    public int getQueueCapacity() {
-        return queueCapacity;
-    }
-
-    public void setQueueCapacity(int queueCapacity) {
-        this.queueCapacity = queueCapacity;
     }
 }

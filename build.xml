@@ -191,8 +191,8 @@
     <!-- =========================================================================================================== -->
     <target name="run" depends="dist">
         <java fork="true" dir="${dist.dir}" jar="${dist.dir}/${project.name}-${project.version}.jar">
-            <!--<arg value="-Xdebug"/>
-            <arg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>-->
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n"/>
         </java>
     </target>
 

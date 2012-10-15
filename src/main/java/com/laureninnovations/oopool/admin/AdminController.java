@@ -18,10 +18,6 @@ public class AdminController extends Thread {
 
     private AtomicBoolean initialized = new AtomicBoolean(false);
     private AtomicBoolean shutdown = new AtomicBoolean(false);
-    private int minThreadPoolSize = 1;
-    private int maxThreadPoolSize = 5;
-    private long keepAliveTime = 60;
-    private int queueCapacity = 10;
 
     private ServerSocket serverSocket;
     private ExecutorService executorService;
@@ -109,38 +105,6 @@ public class AdminController extends Thread {
         }
     }
 
-    public int getMinThreadPoolSize() {
-        return minThreadPoolSize;
-    }
-
-    public void setMinThreadPoolSize(int minThreadPoolSize) {
-        this.minThreadPoolSize = minThreadPoolSize;
-    }
-
-    public int getMaxThreadPoolSize() {
-        return maxThreadPoolSize;
-    }
-
-    public void setMaxThreadPoolSize(int maxThreadPoolSize) {
-        this.maxThreadPoolSize = maxThreadPoolSize;
-    }
-
-    public long getKeepAliveTime() {
-        return keepAliveTime;
-    }
-
-    public void setKeepAliveTime(long keepAliveTime) {
-        this.keepAliveTime = keepAliveTime;
-    }
-
-    public int getQueueCapacity() {
-        return queueCapacity;
-    }
-
-    public void setQueueCapacity(int queueCapacity) {
-        this.queueCapacity = queueCapacity;
-    }
-
     protected Configuration getConfiguration() {
         return configuration;
     }
@@ -176,16 +140,6 @@ public class AdminController extends Thread {
     }
 
     protected ExecutorService newExecutorService() {
-        return new ThreadPoolExecutor(
-                getMinThreadPoolSize(),
-                getMaxThreadPoolSize(),
-                getKeepAliveTime(),
-                TimeUnit.SECONDS,
-                newBlockingQueue(getQueueCapacity())
-        );
-    }
-
-    protected BlockingQueue<Runnable> newBlockingQueue(int capacity) {
-        return new ArrayBlockingQueue<Runnable>(capacity);
+        return Executors.newCachedThreadPool();
     }
 }

@@ -1,15 +1,16 @@
 package com.laureninnovations.oopool.office;
 
+import com.laureninnovations.oopool.office.pool.OfficeInstance;
 import com.laureninnovations.oopool.office.pool.OfficePool;
 import com.sun.star.connection.XConnection;
-import com.sun.star.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.Callable;
 
 public class OfficeRequestHandler implements Callable {
-
-    private OfficeController officeController;
+    static private final Logger log = LoggerFactory.getLogger(OfficeRequestHandler.class);
     private XConnection connection;
 
     @Autowired
@@ -21,16 +22,23 @@ public class OfficeRequestHandler implements Callable {
     public void destroy() {
     }
 
-    public Object call() throws IOException {
-        // spin up an instance of open office.
-        //OfficeInstance instance = officePool.getOfficeInstance();
-//        try {
-            // create our server side connection
-            // bridge the two connections.
-            // return the open office instance to the pool when finished.
-//        } finally {
-//            instance.close();
-//        }
+    public Object call() {
+        try {
+            OfficeInstance instance = officePool.acquireInstance();
+            log.info("ACQUIRED INSTANCE " + instance.getName());
+            try {
+                instance.start();
+                instance.awaitStartup();
+                instance.bridgeConnection(connection);
+            } finally {
+                officePool.releaseInstance(instance);
+                log.info("RELEASED INSTANCE " + instance.getName());
+            }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return null;
     }
 
@@ -40,13 +48,5 @@ public class OfficeRequestHandler implements Callable {
 
     public void setConnection(XConnection connection) {
         this.connection = connection;
-    }
-
-    public OfficeController getOfficeController() {
-        return officeController;
-    }
-
-    public void setOfficeController(OfficeController officeController) {
-        this.officeController = officeController;
     }
 }

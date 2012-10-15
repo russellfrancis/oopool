@@ -1,5 +1,6 @@
 package com.laureninnovations.oopool;
 
+import com.laureninnovations.oopool.office.pool.ConnectionListener;
 import junit.framework.Assert;
 import org.junit.Test;
 
