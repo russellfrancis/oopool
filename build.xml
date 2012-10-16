@@ -138,6 +138,22 @@
             </component-classpath>
         </generic-compile>
     </target>
+
+    <!-- =========================================================================================================== -->
+    <!--  JAVADOC GENERATION                                                                                         -->
+    <!-- =========================================================================================================== -->
+    <!-- =========================================================================================================== -->
+    <target name="javadocs" depends="javadocs-main"/>
+
+    <!-- =========================================================================================================== -->
+    <target name="javadocs-main">
+        <generic-javadoc component.name="main" packagenames="com.laureninnovations.*">
+            <component-classpath>
+                <path refid="lib.main.buildtime.classpath"/>
+                <path refid="lib.main.runtime.classpath"/>
+            </component-classpath>
+        </generic-javadoc>
+    </target>
     
     <!-- =========================================================================================================== -->
     <!--  STAGING TARGETS                                                                                          -->
@@ -169,10 +185,10 @@
     <!--  PACKAGING TARGETS                                                                                          -->
     <!-- =========================================================================================================== -->
     <!-- =========================================================================================================== -->
-    <target name="dist" depends="dist-main"/>
+    <target name="dist" depends="dist-main, javadocs"/>
 
     <!-- =========================================================================================================== -->
-    <target name="dist-main" depends="stage-main, install-onejar">
+    <target name="dist-main" depends="stage-main, javadocs-main, install-onejar">
         <mkdir dir="${dist.dir}"/>
         <one-jar destfile="${dist.dir}/${project.name}-${project.version}.jar">
             <manifest>
