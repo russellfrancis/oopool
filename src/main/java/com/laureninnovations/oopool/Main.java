@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.concurrent.Callable;
-
-public class Main implements Callable {
+public class Main implements Runnable {
 
     static private final Logger log = LoggerFactory.getLogger(Main.class);
 
@@ -18,7 +16,7 @@ public class Main implements Callable {
         try {
             ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/oopool-beans.xml");
             Main main = applicationContext.getBean(Main.class);
-            main.call();
+            main.run();
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
@@ -32,18 +30,15 @@ public class Main implements Callable {
     @Autowired
     private OfficeServer officeServer;
 
-    public Object call() throws Exception {
-        // startup our services ...
-        adminServer.start();
-        officeServer.start();
-
-        // wait until we are terminated through the admin interface.
-        adminServer.join();
-
-        // trigger shutdown of the office server.
-        officeServer.shutdown();
-        officeServer.join();
-
-        return null;
+    public void run() {
+        try {
+            adminServer.registerChildService(officeServer);
+            adminServer.startup();
+            adminServer.awaitShutdown();
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
     }
 }

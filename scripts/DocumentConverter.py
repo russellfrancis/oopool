@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # PyODConverter (Python OpenDocument Converter) v1.2 - 2012-03-10
 #

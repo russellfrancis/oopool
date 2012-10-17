@@ -7,7 +7,7 @@ if (!($socket = adminConnect($host, $port))) {
     echo "ERROR: Unable to establish a connection to $host:$port.\n";
     exit(1);
 }
-writeMessage($socket, "SHUTDOWN");
+writeMessage($socket, "STATUS");
 socket_close($socket);
 exit (0);
 
@@ -36,6 +36,22 @@ function writeMessage($socket, $action, $parameters = null) {
     if (isset($response) && isset($response->action)) {
         echo "RESPONSE: {$response->action}\n";
         if ($response->action === "OK") {
+            if ($response->parameters !== null) {
+		foreach ($response->parameters as $p) {
+                    if ($p->key === 'statistics') {
+		        foreach ($p->value->officeInstanceStats as $s) {
+                            echo "================================================\n";
+                            echo "NAME                     : " . $s->name . "\n";
+                            echo "    STATE                : " . $s->state . "\n";
+		            if ($s->state === 'IDLE') {
+	                            echo "    IDLE SINCE           : " . $s->idleSince . "\n";
+                            }
+                            echo "    JOBS PROCESSED       : " . $s->jobsProcessed . "\n";
+                            echo "    TOTAL JOBS PROCESSED : " . $s->totalJobsProcessed . "\n";
+                        }
+                    }
+		}
+            }
             return true;
         }
         echo "FAILURE: " . var_export($response, true) . "\n";

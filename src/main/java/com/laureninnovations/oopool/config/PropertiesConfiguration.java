@@ -1,8 +1,8 @@
 package com.laureninnovations.oopool.config;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertiesConfiguration implements Configuration {
@@ -10,17 +10,12 @@ public class PropertiesConfiguration implements Configuration {
     private Properties properties = new Properties();
 
     public void init() throws IOException {
-        InputStream ins = PropertiesConfiguration.class.getResourceAsStream("/config.properties");
+        FileInputStream ins = new FileInputStream(System.getProperty("oopool.config_file"));
         try {
             properties.load(ins);
         } finally {
-            if (ins != null) {
-                ins.close();
-            }
+            ins.close();
         }
-    }
-
-    public void destroy() {
     }
 
     public File getOfficeBaseDirectory() {
@@ -32,22 +27,26 @@ public class PropertiesConfiguration implements Configuration {
     }
 
     public int getPoolPort() {
-        return 8100;
+        return Integer.parseInt(properties.getProperty("oopool.pool_port"));
     }
 
     public int getPoolAdminPort() {
-        return 8099;
+        return Integer.parseInt(properties.getProperty("oopool.admin_port"));
     }
 
     public int getFirstWorkerPort() {
-        return 8101;
-    }
-
-    public int getMinPoolSize() {
-        return 0;
+        return Integer.parseInt(properties.getProperty("oopool.first_worker_port"));
     }
 
     public int getMaxPoolSize() {
-        return 5;
+        return Integer.parseInt(properties.getProperty("oopool.max_pool_size"));
+    }
+
+    public int getInstanceMaxIdleTime() {
+        return Integer.parseInt(properties.getProperty("oopool.instance.max_idle_time"));
+    }
+
+    public int getInstanceMaxJobs() {
+        return Integer.parseInt(properties.getProperty("oopool.instance.max_jobs"));
     }
 }

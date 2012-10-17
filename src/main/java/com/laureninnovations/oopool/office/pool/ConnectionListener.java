@@ -8,6 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * This listens for connection events on OpenOffice connections and is used to close resources after an action completes
+ * as well as to update statistics for an office instance.
+ *
+ * @author Russell Francis (russell.francis@metro-six.com)
+ */
 public class ConnectionListener extends ComponentBase implements XStreamListener {
 
     static private final Logger log = LoggerFactory.getLogger(ConnectionListener.class);
@@ -20,35 +26,35 @@ public class ConnectionListener extends ComponentBase implements XStreamListener
     }
 
     public void started() {
-        if (log.isDebugEnabled()) {
-            log.debug("connection started " + id);
+        if (log.isTraceEnabled()) {
+            log.trace("connection started " + id);
         }
     }
 
     public void closed() {
-        if (log.isDebugEnabled()) {
-            log.debug("connection closed " + id);
+        if (log.isTraceEnabled()) {
+            log.trace("connection closed " + id);
         }
         latch.countDown();
     }
 
     public void terminated() {
-        if (log.isDebugEnabled()) {
-            log.debug("connection terminated " + id);
+        if (log.isTraceEnabled()) {
+            log.trace("connection terminated " + id);
         }
         latch.countDown();
     }
 
     public void error(Object o) {
-        if (log.isDebugEnabled()) {
-            log.debug("connection error:  " + id + ": " + o);
+        if (log.isTraceEnabled()) {
+            log.trace("connection error:  " + id + ": " + o);
         }
         latch.countDown();
     }
 
     public void disposing(EventObject source) {
-        if (log.isDebugEnabled()) {
-            log.debug("connection disposing " + id);
+        if (log.isTraceEnabled()) {
+            log.trace("connection disposing " + id);
         }
     }
 

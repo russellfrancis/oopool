@@ -9,18 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.Callable;
 
+/**
+ * This is the worker which is responsible for satisfying a request to the OpenOffice listening port.  The connection
+ * is matched up and bridged with an open office instance from our pool which does the work.
+ *
+ * @author Russell Francis (russell.francis@metro-six.com)
+ */
 public class OfficeRequestHandler implements Callable {
     static private final Logger log = LoggerFactory.getLogger(OfficeRequestHandler.class);
     private XConnection connection;
 
     @Autowired
     private OfficePool officePool;
-
-    public void init() {
-    }
-
-    public void destroy() {
-    }
 
     public Object call() {
         try {
