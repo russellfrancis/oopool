@@ -9,13 +9,20 @@
 # Licensed under the GNU LGPL v2.1 - http://www.gnu.org/licenses/lgpl-2.1.html
 # - or any later version.
 #
-DEFAULT_OPENOFFICE_PORT = 8100
 
 import uno
 from os.path import abspath, isfile, splitext
 from com.sun.star.beans import PropertyValue
 from com.sun.star.task import ErrorCodeIOException
 from com.sun.star.connection import NoConnectException
+
+########################################################################################################################
+# Russ - Modifications to read our configured ports from a single source.
+from pyjavaproperties import Properties
+props = Properties()
+props.load(open('../conf/config.properties'))
+DEFAULT_OPENOFFICE_PORT=props['oopool.pool_port']
+########################################################################################################################
 
 FAMILY_TEXT = "Text"
 FAMILY_WEB = "Web"
