@@ -14,6 +14,12 @@ public class Main implements Runnable {
 
     static public void main(String[] args) {
         try {
+            // Since we are a daemon we need to close the input, output and error streams to let the spawning process
+            // cleanly disconnect from ourselves.
+            System.err.close();
+            System.out.close();
+            System.in.close();
+
             ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/oopool-beans.xml");
             Main main = applicationContext.getBean(Main.class);
             main.run();
