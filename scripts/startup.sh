@@ -1,11 +1,14 @@
 #!/bin/bash
 CWD=`dirname $0`
 cd $CWD
-CONFIG_FILE="$CWD/conf/config.properties"
+CONFIG_FILE=`realpath "../conf/config.properties"`
 JAVA_OPTS="-Doopool.config_file=$CONFIG_FILE"
-JAR=`ls oopool-*.jar`
-echo "STARTING OOPOOL WITH THE FOLLOWING OPTIONS FROM $CONFIG_FILE"
+JAR=`ls ../lib/oopool-*.jar`
+echo "STARTING OOPOOL WITH THE FOLLOWING OPTIONS FROM"
+echo "$CONFIG_FILE"
+echo ""
 cat "$CONFIG_FILE"
+echo ""
 echo ""
 echo "    ./shutdown.php           -  To stop the service."
 echo "    ./pool-status.php        -  To show the status of the running service."

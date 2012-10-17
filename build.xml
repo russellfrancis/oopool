@@ -213,10 +213,12 @@
         <mkdir dir="${dist.dir}"/>
         <mkdir dir="${dist.dir}/logs"/>
         <mkdir dir="${dist.dir}/tmp"/>
-        <one-jar destfile="${dist.dir}/${project.name}-${project.version}.jar">
+        <mkdir dir="${dist.dir}/lib"/>
+        <mkdir dir="${dist.dir}/bin"/>
+        <one-jar destfile="${dist.dir}/lib/${project.name}-${project.version}.jar">
             <manifest>
                 <attribute name="One-Jar-Main-Class" value="com.laureninnovations.oopool.Main"/>
-                <attribute name="Class-Path" value="${deploy.dir}/conf ${libreoffice.deploy.dir}/uri-link/lib"/>
+                <attribute name="Class-Path" value="${libreoffice.deploy.dir}/uri-link/lib"/>
             </manifest>
             <main>
                 <fileset dir="${stage.dir}/main"/>
@@ -230,16 +232,18 @@
                 <include name="conf/**/*"/>
             </fileset>
         </copy>
-        <copy todir="${dist.dir}">
+        <copy todir="${dist.dir}/bin">
             <fileset dir="${base.dir}/scripts">
                 <include name="**/*"/>
             </fileset>
         </copy>
         <chmod perm="ug+x">
-            <fileset dir="${dist.dir}">
-                <include name="*.py"/>
-                <include name="*.php"/>
-                <include name="*.sh"/>
+            <fileset dir="${dist.dir}/bin">
+                <include name="DocumentConverter.py"/>
+                <include name="shutdown.php"/>
+                <include name="pool-status.php"/>
+                <include name="startup.sh"/>
+                <include name="test.sh"/>
             </fileset>
         </chmod>
     </target>
