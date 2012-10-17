@@ -211,10 +211,20 @@
     <!-- =========================================================================================================== -->
     <target name="dist-main" depends="stage-main, javadocs-main, install-onejar">
         <mkdir dir="${dist.dir}"/>
+        <!-- clean out our old stuff -->
+        <delete failonerror="false">
+            <fileset dir="${dist.dir}">
+                <include name="**/*"/>
+                <exclude name="logs"/>
+                <exclude name="tmp"/>
+            </fileset>
+        </delete>
+
+        <mkdir dir="${dist.dir}/bin"/>
+        <mkdir dir="${dist.dir}/lib"/>
         <mkdir dir="${dist.dir}/logs"/>
         <mkdir dir="${dist.dir}/tmp"/>
-        <mkdir dir="${dist.dir}/lib"/>
-        <mkdir dir="${dist.dir}/bin"/>
+
         <one-jar destfile="${dist.dir}/lib/${project.name}-${project.version}.jar">
             <manifest>
                 <attribute name="One-Jar-Main-Class" value="com.laureninnovations.oopool.Main"/>
