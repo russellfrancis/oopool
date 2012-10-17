@@ -49,17 +49,13 @@ public interface Configuration {
     public int getFirstWorkerPort();
 
     /**
-     * Retrieve the minimum size of the open office pool.  There will be this many instances running at any given time
-     * regardless of the load.
-     *
-     * @return The minimum number of open office instances to leave running at any given time.
-     */
-    public int getMinPoolSize();
-
-    /**
      * The maximum number of open office instances to have running simultaineously at any given time.
      *
      * @return The maximum number of open office instances to have running simultaneously at any given time.
      */
     public int getMaxPoolSize();
+
+    public int getInstanceMaxIdleTime();
+
+    public int getInstanceMaxJobs();
 }

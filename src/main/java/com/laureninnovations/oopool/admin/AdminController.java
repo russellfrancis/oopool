@@ -1,6 +1,7 @@
 package com.laureninnovations.oopool.admin;
 
 import com.laureninnovations.oopool.config.Configuration;
+import com.laureninnovations.util.ApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,13 @@ import java.net.SocketException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AdminController extends Thread {
+/**
+ * This is the main work-horse of the AdminServer it listens for incoming requests on a Socket and dispatches new
+ * AdminRequestHandler instances to a thread pool to process each incoming dialog.
+ *
+ * @author Russell Francis (russell.francis@metro-six.com)
+ */
+public class AdminController extends Thread implements ApplicationService {
     static private final Logger log = LoggerFactory.getLogger(AdminController.class);
 
     private AtomicBoolean initialized = new AtomicBoolean(false);
@@ -28,6 +35,11 @@ public class AdminController extends Thread {
     @Autowired
     private ApplicationContext applicationContext;
 
+    /**
+     * Initialize the state of this instance.
+     *
+     * @throws IOException If there is an error initializing the state of this instance.
+     */
     public void init() throws IOException {
         if (!initialize()) {
             throw new IllegalStateException("The init method may only be called one time.");
@@ -36,15 +48,35 @@ public class AdminController extends Thread {
         setExecutorService(newExecutorService());
     }
 
+    /**
+     * Determine if this instance has been initialized.
+     *
+     * @return true if we have been initialized, false otherwise.
+     */
     public boolean isInitialized() {
         return initialized.get();
     }
 
+    /**
+     * Declare that we will be executing the initialization sequence.
+     *
+     * @return true if we are the first caller to execute this method.  All subsequent calls will return false.
+     */
     protected boolean initialize() {
         return !initialized.getAndSet(true);
     }
 
-    public void shutdown() throws IOException {
+    /**
+     * Start the AdminController, this will begin listening for incoming admin requests on the designated port.
+     */
+    public void startup() {
+        this.start();
+    }
+
+    /**
+     * Shutdown the AdminController, this will stop listening for incoming connections on the designated admin port.
+     */
+    public void shutdown() {
         if (!markShutdown()) {
             throw new IllegalStateException("The shutdown method may only be called one time.");
         }
@@ -61,7 +93,13 @@ public class AdminController extends Thread {
                 if (log.isInfoEnabled()) {
                     log.info("ADMIN SHUTDOWN LISTENING SOCKET");
                 }
-                getServerSocket().close();
+                try {
+                    getServerSocket().close();
+                } catch (IOException e) {
+                    if (log.isErrorEnabled()) {
+                        log.error("Exception closing admin server listening socket: " + e.getMessage(), e);
+                    }
+                }
             }
         } finally {
             if (log.isInfoEnabled()) {
@@ -70,10 +108,33 @@ public class AdminController extends Thread {
         }
     }
 
+    /**
+     * Wait for the shutdown process to complete cleanly.
+     */
+    public void awaitShutdown() {
+        try {
+            this.join();
+        } catch (InterruptedException e) {
+            if (log.isWarnEnabled()) {
+                log.warn(AdminController.class.getName() + " shutdown interrupted.");
+            }
+        }
+    }
+
+    /**
+     * Determine if we have been shutdown.
+     *
+     * @return true if we have entered the shutdown sequence, false otherwise.
+     */
     public boolean isShutdown() {
         return shutdown.get();
     }
 
+    /**
+     * Mark this instance as having entered the shutdown sequence.
+     *
+     * @return true if this is the first time we have been called, false each additional time.
+     */
     private boolean markShutdown() {
         return !shutdown.getAndSet(true);
     }

@@ -2,6 +2,7 @@ package com.laureninnovations.oopool.office;
 
 import com.laureninnovations.oopool.config.Configuration;
 import com.laureninnovations.oopool.office.pool.OfficePool;
+import com.laureninnovations.util.ApplicationService;
 import com.sun.star.connection.ConnectionSetupException;
 import com.sun.star.connection.XAcceptor;
 import com.sun.star.connection.XConnection;
@@ -15,7 +16,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class OfficeController extends Thread {
+/**
+ * Listen for requests on our bridge open office port and create OfficeRequestHandlers which are dispatched to a
+ * thread pool to process each request as it arrives.  The thread pool naturally provides protection against resource
+ * exhaustion when a spike of requests comes in during a short period and allows requests to be queued and matched up
+ * with an open office instance from the pool when one becomes available.
+ *
+ * @author Russell Francis (russell.francis@metro-six.com)
+ */
+public class OfficeController extends Thread implements ApplicationService {
     static private final Logger log = LoggerFactory.getLogger(OfficeController.class);
 
     private AtomicBoolean initialized = new AtomicBoolean(false);
@@ -40,7 +49,6 @@ public class OfficeController extends Thread {
             throw new IllegalStateException("The init method may only be called once.");
         }
         setExecutorService(newExecutorService());
-        officePool.start();
     }
 
     public boolean isInitialized() {
@@ -51,7 +59,11 @@ public class OfficeController extends Thread {
         return !initialized.getAndSet(true);
     }
 
-    public void shutdown() throws IOException, InterruptedException {
+    public void startup() {
+        this.start();
+    }
+
+    public void shutdown() {
         if (!markShutdown()) {
             throw new IllegalStateException("The shutdown method may only be called once.");
         }
@@ -66,6 +78,17 @@ public class OfficeController extends Thread {
         } finally {
             if (log.isInfoEnabled()) {
                 log.info("OFFICE SERVER SHUTDOWN COMPLETE");
+            }
+        }
+    }
+
+    public void awaitShutdown() {
+        try {
+            officePool.awaitShutdown();
+            this.join();
+        } catch (InterruptedException e) {
+            if (log.isWarnEnabled()) {
+                log.warn(OfficeController.class.getName() + " was interrupted during the shutdown process.");
             }
         }
     }

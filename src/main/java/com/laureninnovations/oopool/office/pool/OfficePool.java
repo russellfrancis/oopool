@@ -1,6 +1,7 @@
 package com.laureninnovations.oopool.office.pool;
 
 import com.laureninnovations.oopool.config.Configuration;
+import com.laureninnovations.util.ApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,22 +12,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-public class OfficePool extends Thread {
+/**
+ * This pool manages a collection of OfficeInstances allowing a user to grab an available instance before use.
+ *
+ * @author Russell Francis (russell.francis@metro-six.com)
+ */
+public class OfficePool implements ApplicationService {
     static private final Logger log = LoggerFactory.getLogger(OfficePool.class);
     static private final String LOCALHOST = "127.0.0.1";
 
     private CountDownLatch shutdownLatch = new CountDownLatch(1);
-    private AtomicBoolean shutdown = new AtomicBoolean(false);
     private List<OfficeInstance> instances = new ArrayList<OfficeInstance>();
     private LinkedBlockingDeque<OfficeInstance> availableInstances = new LinkedBlockingDeque<OfficeInstance>();
+
+    @Autowired
+    private OfficePoolStatistics officePoolStatistics;
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @Autowired
     private Configuration configuration;
+
+    public OfficePoolStatistics getOfficePoolStatistics() {
+        return officePoolStatistics;
+    }
 
     public void init() throws Exception {
         int maxPoolSize = getConfiguration().getMaxPoolSize();
@@ -35,58 +46,14 @@ public class OfficePool extends Thread {
             OfficeInstance instance = newOfficeInstance(LOCALHOST, port + i);
             instances.add(instance);
             availableInstances.add(instance);
+            officePoolStatistics.addOfficeInstance(instance);
         }
     }
 
-    public void antiInit() {
-
+    public void startup() {
     }
 
-    public void run() {
-        try {
-            while (!isShutdown()) {
-                try {
-                    Thread.sleep(60000); // once a minute
-                    killIdleInstances();
-                } catch (InterruptedException e) {
-                    if (log.isTraceEnabled()) {
-                        log.trace("OfficePool interrupted");
-                    }
-                }
-            }
-        } finally {
-            cleanup();
-        }
-    }
-
-    public boolean isShutdown() {
-        return shutdown.get();
-    }
-
-    public void shutdown() throws InterruptedException {
-        shutdown.set(true);
-        this.interrupt();
-        shutdownLatch.await();
-    }
-
-    protected void killIdleInstances() {
-        for (OfficeInstance instance : instances) {
-            synchronized (instance) {
-                if (instance.isReapable()) {
-                    try {
-                        instance.stop();
-                    }
-                    catch (Exception e) {
-                        if (log.isErrorEnabled()) {
-                            log.error(e.getMessage(), e);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected void cleanup() {
+    public void shutdown() {
         for (OfficeInstance instance : instances) {
             try {
                 instance.stop();
@@ -97,6 +64,16 @@ public class OfficePool extends Thread {
             }
         }
         shutdownLatch.countDown();
+    }
+
+    public void awaitShutdown() {
+        try {
+            shutdownLatch.await();
+        } catch (InterruptedException e) {
+            if (log.isWarnEnabled()) {
+                log.error(OfficePool.class.getName() + " was interrupted during shutdown.");
+            }
+        }
     }
 
     public OfficeInstance acquireInstance() throws InterruptedException {
@@ -122,6 +99,7 @@ public class OfficePool extends Thread {
         officeInstance.setUserInstallationDir(userInstallationDir);
         officeInstance.setProcessBuilder(newProcessBuilder(userInstallationDir, host, port));
         officeInstance.setPort(port);
+        officeInstance.setName("instance-" + port);
         return officeInstance;
     }
 

@@ -12,7 +12,9 @@
 
     <!-- Global utilities -->
     <bean id="ioUtil" class="com.laureninnovations.util.IOUtil"/>
-    <bean id="gson" class="com.google.gson.Gson"/>
+    <bean id="gsonBuilder" class="com.google.gson.GsonBuilder"/>
+    <bean id="gsonBuilder0" factory-bean="gsonBuilder" factory-method="excludeFieldsWithoutExposeAnnotation"/>
+    <bean id="gson" factory-bean="gsonBuilder0" factory-method="create" lazy-init="true"/>
 
     <!-- Open Office Beans -->
     <bean id="ooContext" class="com.sun.star.comp.helper.Bootstrap" factory-method="createInitialComponentContext">
@@ -53,12 +55,14 @@
 
     <!-- Application specific configuration -->
     <bean id="main" class="com.laureninnovations.oopool.Main"/>
-    <bean id="configuration" class="com.laureninnovations.oopool.config.PropertiesConfiguration" init-method="init" destroy-method="destroy"/>
-    <bean id="officePool" class="com.laureninnovations.oopool.office.pool.OfficePool" init-method="init" destroy-method="antiInit"/>
+    <bean id="configuration" class="com.laureninnovations.oopool.config.PropertiesConfiguration" init-method="init"/>
+    <bean id="officePool" class="com.laureninnovations.oopool.office.pool.OfficePool" init-method="init"/>
+    <bean id="officePoolStatistics" class="com.laureninnovations.oopool.office.pool.OfficePoolStatistics"/>
     <bean id="officeInstance" class="com.laureninnovations.oopool.office.pool.OfficeInstance" scope="prototype"/>
+    <bean id="officeInstanceReaper" class="com.laureninnovations.oopool.office.pool.OfficeInstanceReaper" scope="prototype"/>
 
     <!-- Administive Server -->
-    <bean id="adminServer" class="com.laureninnovations.oopool.admin.AdminServer"/>
+    <bean id="adminServer" class="com.laureninnovations.oopool.admin.AdminServer" lazy-init="true"/>
     <bean id="adminController" class="com.laureninnovations.oopool.admin.AdminController" init-method="init"/>
     <bean id="adminRequestHandler" class="com.laureninnovations.oopool.admin.AdminRequestHandler" scope="prototype"/>
     <bean id="adminControlProtocol" class="com.laureninnovations.oopool.admin.protocol.AdminControlProtocol" scope="prototype"/>
@@ -66,6 +70,6 @@
     <!-- Office Server -->
     <bean id="officeServer" class="com.laureninnovations.oopool.office.OfficeServer"/>
     <bean id="officeController" class="com.laureninnovations.oopool.office.OfficeController" init-method="init"/>
-    <bean id="officeRequestHandler" class="com.laureninnovations.oopool.office.OfficeRequestHandler" scope="prototype" init-method="init" destroy-method="destroy"/>
+    <bean id="officeRequestHandler" class="com.laureninnovations.oopool.office.OfficeRequestHandler" scope="prototype"/>
 
 </beans>
