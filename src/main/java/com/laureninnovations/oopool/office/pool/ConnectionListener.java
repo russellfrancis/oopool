@@ -46,8 +46,8 @@ public class ConnectionListener extends ComponentBase implements XStreamListener
     }
 
     public void error(Object o) {
-        if (log.isTraceEnabled()) {
-            log.trace("connection error:  " + id + ": " + o);
+        if (log.isErrorEnabled()) {
+            log.error("connection error:  " + id + ": " + o);
         }
         latch.countDown();
     }
