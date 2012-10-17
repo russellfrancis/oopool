@@ -1,7 +1,7 @@
 #!/bin/bash
 CWD=`dirname $0`
 cd $CWD
-CONFIG_FILE=`realpath "../conf/config.properties"`
+CONFIG_FILE=`readlink -f "../conf/config.properties"`
 JAVA_OPTS="-Doopool.config_file=$CONFIG_FILE"
 JAR=`ls ../lib/oopool-*.jar`
 echo "STARTING OOPOOL WITH THE FOLLOWING OPTIONS FROM"
