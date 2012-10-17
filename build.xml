@@ -209,8 +209,7 @@
     <target name="dist" depends="dist-main, javadocs"/>
 
     <!-- =========================================================================================================== -->
-    <target name="dist-main" depends="stage-main, javadocs-main, install-onejar">
-        <mkdir dir="${dist.dir}"/>
+    <target name="clean-dist-main" if="clean-dist.do">
         <!-- clean out our old stuff -->
         <delete failonerror="false">
             <fileset dir="${dist.dir}">
@@ -219,7 +218,11 @@
                 <exclude name="tmp"/>
             </fileset>
         </delete>
+    </target>
 
+    <!-- =========================================================================================================== -->
+    <target name="dist-main" depends="clean-dist-main, stage-main, javadocs-main, install-onejar">
+        <mkdir dir="${dist.dir}"/>
         <mkdir dir="${dist.dir}/bin"/>
         <mkdir dir="${dist.dir}/lib"/>
         <mkdir dir="${dist.dir}/logs"/>
