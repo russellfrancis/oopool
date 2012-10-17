@@ -252,7 +252,7 @@
         </copy>
         <chmod perm="ug+x">
             <fileset dir="${dist.dir}/bin">
-                <include name="DocumentConverter.py"/>
+                <include name="convert.php"/>
                 <include name="shutdown.php"/>
                 <include name="pool-status.php"/>
                 <include name="startup.sh"/>
