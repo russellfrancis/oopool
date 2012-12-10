@@ -1,0 +1,155 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+body {
+    font: 400 16px/1.5 "proxima-nova", "Helvetica Nueu", Helvetica, sans-serif;
+    background-color: #F0F2EB;
+    color: #222;
+    text-align: justify;
+}
+a {
+    text-decoration: none;
+}
+h2 {
+    font-size: 200%;
+}
+h3 {
+    font-size: 150%;
+}
+dl {
+    padding-left: 50px;
+}
+dt {
+    font-weight: bold;
+}
+dd {
+    font-weight: lighter;
+    padding-left: 75px;
+}
+p {
+    padding-top: 10px;
+    padding-left: 10px;
+}
+.wrap {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+#header {
+    width: 100%;
+    background: #E1EDB9;
+    margin: 0 0 40px;
+    height: 56px;
+    border-bottom: 1px solid #FF4242;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, .2);
+}
+
+#header h1 {
+    float: left;
+    padding: 5px;
+    font-size: xx-large;
+    color: #666666;
+}
+
+#main {
+    width: 100%;
+}
+
+#footer {
+    width: 100%;
+    text-align: center;
+    font-size: x-small;
+    color: #666666;
+    padding: 5px;
+}
+
+.inner {
+    margin: 0 auto;
+    width: 870px;
+    position: relative;
+}
+
+#nav {
+    padding: 5px;
+    margin: 0;
+    width: 100%;
+    height: 56px;
+}
+
+#nav li {
+    float: left;
+}
+
+.button {
+    font-family: "proxima-nova-soft", "Helvetica Neue", Helvetica, sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 5px 20px;
+    margin: 5px;
+    border: 1px solid #666666;
+    background-color: #1E8CBE;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#E1EDB9), to(#F4FAD2));
+    background-image: -webkit-linear-gradient(top, #E1EDB9, #F4FAD2);
+    background-image: -moz-linear-gradient(top, #E1EDB9, #F4FAD2);
+    background-image: -o-linear-gradient(top, #E1EDB9, #F4FAD2);
+    background-image: linear-gradient(to bottom, #E1EDB9, #F4FAD2);
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2)
+}
+
+.button:hover, .selected {
+    background-image: -webkit-gradient(linear, left bottom, left top, from(#E1EDB9), to(#F4FAD2));
+    background-image: -webkit-linear-gradient(bottom, #E1EDB9, #F4FAD2);
+    background-image: -moz-linear-gradient(bottom, #E1EDB9, #F4FAD2);
+    background-image: -o-linear-gradient(bottom, #E1EDB9, #F4FAD2);
+    background-image: linear-gradient(to top, #E1EDB9, #F4FAD2);
+    border: 1px solid #FF4242;
+}
+
