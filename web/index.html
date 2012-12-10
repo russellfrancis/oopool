@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenOffice Connection Pool</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.current-year').text(new Date().getFullYear());
+            $('.button').click(function () {
+                var tag = $(this).attr('id').substr(0, $(this).attr('id').indexOf('-'));
+                $('.button').removeClass('selected');
+                $('.page').hide();
+                $(this).addClass('selected');
+                $('#' + tag).show();
+            })
+            $('.page').hide();
+            $('#overview').show();
+        });
+    </script>
+</head>
+<body>
+    <div class="wrap">
+        <div id="header">
+            <div class="inner">
+                <h1>OpenOffice<sup>&trade;</sup> Connection Pooling</h1>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="inner">
+                <ul id="nav">
+                    <li><a id="overview-button" class="button selected">Overview</a></li>
+                    <li><a id="evaluate-button" class="button">Evaluate</a></li>
+                </ul>
+
+                <!-- Content for the Overview page -->
+                <div id="overview" class="page">
+                    <h2>Industrial Strength Connection Pooling for OpenOffice</h2>
+                    <p>
+                        OOPool is a production ready connection pool for open office which manages starting and stopping
+                        instances of OpenOffice to dynamically respond to a changing load while ensuring that the system
+                        does not suffer from resource exhaustion.
+                    </p>
+                    <p>
+                        <h3>Features</h3>
+                        <dl>
+                            <dt>Cross-platform</dt>
+                                <dd>OOPool runs equally well on Windows&reg;, Mac OS X and Linux and is capable of spawning either LibreOffice or OpenOffice instances.</dd>
+                            <dt>Clustered</dt>
+                                <dd>OOPool can distribute requests to multiple office instances running on a single server or to multiple OpenOffice instances running on multiple servers in a clustered architecture.</dd>
+                            <dt>Small foot-print</dt>
+                                <dd>OOPool will stop OpenOffice instances which are not being used, minimizing the use of scarse computing resources.</dd>
+                            <dt>Prevent Memory Leaks</dt>
+                                <dd>OOPool is capable of stopping and restarting OpenOffice instances on a heavily loaded server to prevent memory-leaks from becoming a problem.</dd>
+                            <dt>Metrics</dt>
+                                <dd>OOPool generates metrics allowing you to visualize resource consumption and aide with planning.</dd>
+                        </dl>
+                    </p>
+                    <h2>Why use connection pooling?</h2>
+                    <p>
+                        <a href="http://incubator.apache.org/openofficeorg/" title="Apache OpenOffice" target="_blank">OpenOffice</a>
+                        &amp; <a href="http://www.libreoffice.org/" title="LibreOffice" target="_blank">LibreOffice</a> both
+                        provide fantastic support for managing and manipulating documents through their API allowing developers
+                        to establish a connection to a running OpenOffice instance and leverage its mature document conversion
+                        and rendering technologies to produce stunning documents in a variety of formats.
+                    </p>
+                    <p>
+                        Unfortunately a single instance of OpenOffice can only process one document at a time which can
+                        result in throughput bottlenecks while some requests are blocked or rejected until the instance
+                        has finished processing all of the previous requests.  Additionally OpenOffice when running for long
+                        periods of time or under heavy load is known to suffer from memory leaks which require an operator
+                        to manually stop and restart the instance. This is an inconvenience when there are a small number
+                        of infrequent requests but is a major burden in environments under heavy load.
+                    </p>
+                    <p>
+                        If you need to using the API of OpenOffice in a large or highly available deployment where downtime isn't accepted
+                        OOPool will make your life better.
+                    </p>
+                </div>
+
+                <!-- Content for the Download page -->
+                <div id="evaluate" class="page">
+                    <h2>Evaluate</h2>
+                    <p>
+                        If you would like to evaluate OOPool, please reach out to our technical team.  We would love to
+                        hear a little about your particular problem domain and will quickly help you get up and running
+                        with OOPool.
+                    </p>
+                    <p>
+                        <dl>
+                            <!--<dt>Phone:</dt>
+                                <dt></dt>-->
+                            <dt>Email:</dt>
+                                <dt><a href="mailto:developers@laureninnovations.com">developers@laureninnovations.com</a></dt>
+                        </dl>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="footer">
+            <div class="inner">
+                &copy; <span class="current-year">2011</span> Lauren Innovations
+            </div>
+        </div>
+    </div>
+</body>
+</html>
