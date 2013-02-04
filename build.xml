@@ -11,7 +11,7 @@
 
     <property name="ivy.settings.dir" value="settings"/>
     <property name="ivy.settings.file" value="ivysettings.xml"/>
-    <property name="ivy.version" value="2.3.0-rc1"/>
+    <property name="ivy.version" value="2.3.0"/>
     <property name="ivy.source.domainname" value="ivy.laureninnovations.com"/>
     
     <property name="compile.debug" value="true"/>
