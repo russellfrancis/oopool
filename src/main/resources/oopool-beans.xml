@@ -60,6 +60,7 @@
     <bean id="officePoolStatistics" class="com.laureninnovations.oopool.office.pool.OfficePoolStatistics"/>
     <bean id="officeInstance" class="com.laureninnovations.oopool.office.pool.OfficeInstance" scope="prototype"/>
     <bean id="officeInstanceReaper" class="com.laureninnovations.oopool.office.pool.OfficeInstanceReaper" scope="prototype"/>
+    <bean id="officeInstanceLogger" class="com.laureninnovations.oopool.office.pool.OfficeInstanceLogger" scope="prototype"/>
 
     <!-- Administive Server -->
     <bean id="adminServer" class="com.laureninnovations.oopool.admin.AdminServer" lazy-init="true"/>

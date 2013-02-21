@@ -27,12 +27,21 @@ public class OfficeRequestHandler implements Callable {
             OfficeInstance instance = officePool.acquireInstance();
             log.info("ACQUIRED INSTANCE " + instance.getName());
             try {
-                instance.start();
-                instance.awaitStartup();
-                instance.bridgeConnection(connection);
+                try {
+                    instance.start();
+                    instance.awaitStartup();
+                    instance.bridgeConnection(connection);
+                } finally {
+                    officePool.releaseInstance(instance);
+                    if (log.isInfoEnabled()) {
+                        log.info("RELEASED INSTANCE " + instance.getName());
+                    }
+                }
             } finally {
-                officePool.releaseInstance(instance);
-                log.info("RELEASED INSTANCE " + instance.getName());
+                connection.close();
+                if (log.isInfoEnabled()) {
+                    log.info("CLOSED XCONNECTION");
+                }
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
