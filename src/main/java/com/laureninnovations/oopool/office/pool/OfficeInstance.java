@@ -15,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.net.Socket;
 import java.util.Date;
 import java.util.concurrent.Semaphore;
@@ -33,6 +31,7 @@ public class OfficeInstance implements XInstanceProvider {
     static private final Logger log = LoggerFactory.getLogger(OfficeInstance.class);
 
     static public class Statistics implements Serializable {
+        static private final long serialVersionUID = 1L;
         static private final String STATE_IDLE = "IDLE";
         static private final String STATE_WORKING = "WORKING";
         static private final String STATE_STOPPED = "STOPPED";
@@ -120,6 +119,7 @@ public class OfficeInstance implements XInstanceProvider {
     private boolean isListening = false;
     private Semaphore permitWork = new Semaphore(0);
     private OfficeInstanceReaper reaper;
+    private OfficeInstanceLogger logger;
     private ProcessBuilder processBuilder;
     private Process process;
     private File userInstallationDir;
@@ -177,6 +177,9 @@ public class OfficeInstance implements XInstanceProvider {
             process.getOutputStream().close();
 
             // stdout and stderr are merged.
+            logger = applicationContext.getBean(OfficeInstanceLogger.class);
+            logger.setOfficeInstance(this);
+            logger.start();
         }
     }
 
@@ -218,10 +221,15 @@ public class OfficeInstance implements XInstanceProvider {
                 reaper.shutdown();
                 reaper.awaitShutdown();
 
+                // destroy the process.
                 if (process != null) {
                     process.destroy();
                     process.waitFor();
                 }
+
+                // close the logger instance.
+                logger.shutdown();
+                logger.awaitShutdown();
 
                 // Cleanup the user environment directory.
                 try {
@@ -233,6 +241,8 @@ public class OfficeInstance implements XInstanceProvider {
                 }
             } finally {
                 process = null;
+                logger = null;
+                reaper = null;
                 isListening = false;
                 statistics.stoppedInstance();
                 // Should be unnecessary but is just a precaution.
@@ -278,6 +288,10 @@ public class OfficeInstance implements XInstanceProvider {
 
     public void setProcessBuilder(ProcessBuilder processBuilder) {
         this.processBuilder = processBuilder;
+    }
+
+    protected Process getProcess() {
+        return process;
     }
 
     public File getUserInstallationDir() {
