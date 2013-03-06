@@ -36,7 +36,7 @@
     <property name="deploy.dir" location="deploy"/><!-- MUST BE ABSOLUTE -->
 
     <property name="libreoffice.target" value="linux-x64"/><!-- linux-x86, win-x64, win-x86, osx-x64 none of these are supported right now. -->
-    <property name="libreoffice.tar.dir" value="libreoffice3.6"/><!-- This is the directory within the .tar.bz2 file which should be stripped from the files. -->
+    <property name="libreoffice.tar.dir" value="libreoffice4.0"/><!-- This is the directory within the .tar.bz2 file which should be stripped from the files. -->
 
     <!-- Default values for the pool, they can be overridden. -->
     <property name="libreoffice.deploy.dir" value="${deploy.dir}/libreoffice"/><!-- MUST BE ABSOLUTE -->
