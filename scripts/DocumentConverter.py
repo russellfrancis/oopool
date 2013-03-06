@@ -9,6 +9,14 @@
 # - or any later version.
 #
 
+#### WARNING
+#
+# This file is for testing any changes made here must also be mirrored 
+# on the file within teamprepared/web/tpdata/utils/DocumentConverter.py
+# as that is the script which will actually be used in production.
+#
+####
+
 import uno
 from os.path import abspath, isfile, splitext
 from com.sun.star.beans import PropertyValue
