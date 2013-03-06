@@ -20,7 +20,7 @@
     <dependencies>
         <!-- These are the dependencies needed for runtime -->
         <dependency conf="main-runtime" org="slf4j" name="slf4j-log4j12" rev="1.7.1"/>
-        <dependency conf="main-runtime" org="libreoffice" name="libreoffice-java" rev="3.6.2.2"/>
+        <dependency conf="main-runtime" org="libreoffice" name="libreoffice-java" rev="4.0.1.2"/>
         <dependency conf="main-runtime" org="spring" name="spring-core" rev="3.1.2.RELEASE"/>
         <dependency conf="main-runtime" org="spring" name="spring-beans" rev="3.1.2.RELEASE"/>
         <dependency conf="main-runtime" org="spring" name="spring-context" rev="3.1.2.RELEASE"/>
@@ -39,7 +39,7 @@
         <dependency conf="main-testtime" org="cobertura" name="cobertura" rev="1.9.4.1"/>
 
         <!-- These are the dependencies for setting up a clustered libreoffice -->
-        <dependency conf="libreoffice-linux-x64" org="libreoffice" name="libreoffice-linux-x64" rev="3.6.2.2"/>
+        <dependency conf="libreoffice-linux-x64" org="libreoffice" name="libreoffice-linux-x64" rev="4.0.1.2"/>
     </dependencies>
 
 </ivy-module>
