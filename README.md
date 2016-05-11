@@ -1,0 +1,3 @@
+ooPool is an OpenOffice/LibreOffice connection pool which will delegate incoming document manipulation requests from clients across a cluster of worker office instances satisfying requests.  The pool takes care of starting and stopping office instances based on load as well as distributing the incoming requests across available resources.
+
+Licensed under the BSD (http://www.linfo.org/bsdlicense.html) license.
